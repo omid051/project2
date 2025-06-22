@@ -22,9 +22,9 @@
     function showNotification(message, type = 'success', duration = 4000) {
         let container = $('#hs-notification-container');
         if (!container.length) {
-            container = $('<div id="hs-notification-container"></div>').appendTo('body');
+            container = $('<div id="hs-notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000;"></div>').appendTo('body');
         }
-        const notification = $(`<div class="hs-notification type-${type}">${message}</div>`).appendTo(container).hide().fadeIn(300);
+        const notification = $(`<div class="hs-notification" style="background-color: ${type === 'success' ? '#4CAF50' : '#f44336'}; color: white; padding: 15px; margin-bottom: 10px; border-radius: 5px;">${message}</div>`).appendTo(container).hide().fadeIn(300);
         setTimeout(() => {
             notification.fadeOut(400, function() {
                 $(this).remove();
@@ -58,6 +58,47 @@
         });
     }
 
+    // --- Province/City Dropdown Logic (Global) ---
+    const initProvinceCity = function() {
+        const populateCities = (provinceSelect) => {
+            const province = provinceSelect.val();
+            const citySelect = $('#' + provinceSelect.data('city-target'));
+            const currentCityVal = citySelect.data('saved-value');
+            
+            citySelect.empty().append('<option value="">' + (province ? 'شهر را انتخاب کنید' : 'ابتدا استان را انتخاب کنید') + '</option>');
+            
+            if (province && hs_ajax_data.provinces_cities[province]) {
+                hs_ajax_data.provinces_cities[province].forEach(c => citySelect.append($('<option>', { value: c, text: c })));
+                if(currentCityVal) {
+                    citySelect.val(currentCityVal);
+                    // Clear the saved value after using it to prevent conflicts
+                    citySelect.data('saved-value', ''); 
+                }
+            }
+        };
+
+        $('.hs-province-select').each(function() {
+            const provinceSelect = $(this);
+            const savedProvince = provinceSelect.data('saved-value');
+            const provinces = Object.keys(hs_ajax_data.provinces_cities);
+
+            // Ensure we don't duplicate options on ajax reloads
+            if(provinceSelect.find('option').length <= 1) {
+                provinces.forEach(p => provinceSelect.append($('<option>', { value: p, text: p })));
+            }
+
+            if (savedProvince) { 
+                provinceSelect.val(savedProvince); 
+            }
+            populateCities(provinceSelect); // Populate cities on initial load
+        });
+        
+        // Use event delegation for dynamically added selects
+        $(document).on('change', '.hs-province-select', function() {
+            populateCities($(this));
+        });
+    };
+
     // --- Main Profile Form Logic ---
     const formWrapper = $('#hs-multistep-form-wrapper');
     if (formWrapper.length) {
@@ -66,7 +107,6 @@
         const form = $('#hs-profile-form');
         const prevBtn = $('#hs-prev-btn'), nextBtn = $('#hs-next-btn'), submitBtn = $('#hs-submit-btn'), loader = form.find('.hs-loader');
 
-        // **FIXED**: Correctly handle form state and button visibility
         const updateFormState = (isLocked) => {
             form.data('locked', isLocked);
             form.find('input, select, textarea').prop('disabled', isLocked);
@@ -97,25 +137,9 @@
              });
         };
         
-        const populateCities = (provinceSelect, savedCity = '') => {
-            const province = provinceSelect.val(), citySelect = $('#' + provinceSelect.data('city-target')), currentCityVal = savedCity || citySelect.data('saved-value');
-            citySelect.empty().append('<option value="">ابتدا استان را انتخاب کنید</option>');
-            if (province && hs_ajax_data.provinces_cities[province]) {
-                hs_ajax_data.provinces_cities[province].forEach(c => citySelect.append($('<option>', { value: c, text: c })));
-                if(currentCityVal) citySelect.val(currentCityVal);
-            }
-        };
-
-        $('.hs-province-select').each(function() {
-            const provinceSelect = $(this), savedProvince = provinceSelect.data('saved-value'), citySelect = $('#' + provinceSelect.data('city-target')), provinces = Object.keys(hs_ajax_data.provinces_cities);
-            provinceSelect.find('option:not([value=""])').remove();
-            provinces.forEach(p => provinceSelect.append($('<option>', { value: p, text: p })));
-            if (savedProvince) { provinceSelect.val(savedProvince); populateCities(provinceSelect, citySelect.data('saved-value')); }
-        }).on('change', function() { populateCities($(this)); });
-        
         const checkConditions = () => {
             $('[data-condition-field]').each(function() {
-                const conditionalEl = $(this), fieldName = conditionalEl.data('condition-field'), requiredValue = String(conditionalEl.data('condition-value')).split(','), compare = conditionalEl.data('condition-compare') || '==', controller = $('#' + fieldName), controllerValue = controller.is(':radio,:checkbox') ? controller.filter(':checked').val() : controller.val();
+                const conditionalEl = $(this), fieldName = conditionalEl.data('condition-field'), requiredValue = String(conditionalEl.data('condition-value')).split(','), compare = conditionalEl.data('condition-compare') || '==', controller = $('[name="' + fieldName + '"]'), controllerValue = controller.is(':radio,:checkbox') ? $('[name="' + fieldName + '"]:checked').val() : controller.val();
                 let show = (compare === '!=') ? (controllerValue && !requiredValue.includes(controllerValue)) : requiredValue.includes(controllerValue);
                 const isCurrentlyVisible = conditionalEl.is(':visible');
                 if(show && !isCurrentlyVisible) conditionalEl.slideDown(200);
@@ -126,30 +150,22 @@
 
         const showStep = (step) => { $('.hs-form-step').hide(); $('#hs-step-' + step).show(); updateButtonVisibility(); };
         
-        // **FIXED**: Correctly handle button visibility based on form lock state
         const updateButtonVisibility = () => {
             let isLocked = form.data('locked');
-            prevBtn.toggle(currentStep > 1);
-            nextBtn.toggle(currentStep < totalSteps);
-            submitBtn.toggle(currentStep === totalSteps && !isLocked); // Only show submit if not locked
-            if(isLocked){
-                $('.hs-navigation-buttons').show(); // Ensure wrapper is visible
-            }
+            prevBtn.toggle(currentStep > 1 && !isLocked);
+            nextBtn.toggle(currentStep < totalSteps && !isLocked);
+            submitBtn.toggle(currentStep === totalSteps && !isLocked);
         };
         
-        // **FIXED**: Allow navigation even when form is locked
         nextBtn.on('click', () => { 
-            if (form.data('locked')) {
-                if (currentStep < totalSteps) {
-                    currentStep++;
-                    showStep(currentStep);
-                }
-                return;
+            if (validateStep(currentStep)) {
+                saveStepData(false, () => {
+                    if (currentStep < totalSteps) { currentStep++; showStep(currentStep); }
+                });
             }
-            if (validateStep(currentStep)) saveStepData(false); 
         });
         prevBtn.on('click', () => { if (currentStep > 1) { currentStep--; showStep(currentStep); } });
-        form.on('submit', (e) => { e.preventDefault(); if (form.data('locked')) return; if (validateAllSteps()) saveStepData(true); });
+        form.on('submit', (e) => { e.preventDefault(); if (validateAllSteps()) saveStepData(true); });
         
         form.on('keydown', 'input', function(e) {
             if (e.key === 'Enter') {
@@ -163,26 +179,16 @@
         });
 
         $(document).on('input', 'input[type="tel"], input[type="number"]', function() {
-            const caretPos = this.selectionStart;
-            const originalLength = this.value.length;
             this.value = convertPersianToEnglish(this.value);
-            const newLength = this.value.length;
-            if(newLength !== originalLength) {
-                this.selectionStart = this.selectionEnd = caretPos - (originalLength - newLength);
-            }
         });
 
-        function saveStepData(isFinal) {
+        function saveStepData(isFinal, callback) {
             loader.show(); prevBtn.add(nextBtn).add(submitBtn).prop('disabled', true);
             
             const formData = new FormData(form[0]);
             formData.append('action', 'hs_save_profile_form'); 
             formData.append('nonce', hs_ajax_data.nonce);
-
-            // Since we're using FormData, we pass the serialized form data within it
-            // This is needed because FormData doesn't pick up disabled fields
-            const allData = form.find(':input').not(':disabled').serialize();
-            formData.append('form_data', allData);
+            formData.append('form_data', form.serialize());
             
             if (isFinal) {
                 formData.append('final_submission', 'true');
@@ -192,56 +198,55 @@
                 success: (res) => {
                     if (res.success) {
                         if (isFinal) {
-                            $('#hs-form-messages').html('اطلاعات شما با موفقیت ثبت شد و برای بررسی ارسال گردید. تا زمان بررسی، پروفایل شما قفل خواهد بود.').removeClass('error').addClass('notice success').slideDown();
+                            $('#hs-form-messages').html(hs_ajax_data.messages.final_submission_success).removeClass('error').addClass('notice success').slideDown();
                             updateFormState(true);
-                        } else { currentStep++; showStep(currentStep); }
+                        } else if (typeof callback === 'function') {
+                            callback();
+                        }
                     } else {
                          showNotification(res.data?.message || hs_ajax_data.messages.error_saving, 'error');
                     }
                 },
                 error: () => { showNotification(hs_ajax_data.messages.error_saving, 'error'); },
-                complete: () => { loader.hide(); prevBtn.add(nextBtn).add(submitBtn).prop('disabled', false); updateButtonVisibility(); }
+                complete: () => { loader.hide(); prevBtn.add(nextBtn).add(submitBtn).prop('disabled', false); }
             });
         }
         
         const validationPatterns = {
-            'mobile_phone': { regex: /^09[0-9]{9}$/, message: 'فرمت شماره موبایل صحیح نیست (مثال: 09123456789).'},
-            'national_code': { regex: /^[0-9]{10}$/, message: 'کد ملی باید ۱۰ رقم باشد.'},
-            'landline_phone': { regex: /^0[0-9]{10}$/, message: 'فرمت تلفن ثابت صحیح نیست (مثال: 02112345678).'},
-            'postal_code': { regex: /^[0-9]{10}$/, message: 'کد پستی باید ۱۰ رقم باشد.'},
-            'first_name': { regex: /^[\u0600-\u06FF\s]+$/, message: 'لطفاً فقط از حروف فارسی استفاده کنید.'},
-            'last_name': { regex: /^[\u0600-\u06FF\s]+$/, message: 'لطفاً فقط از حروف فارسی استفاده کنید.'},
-            'field_of_study': { regex: /^[\u0600-\u06FF\s]+$/, message: 'لطفاً فقط از حروف فارسی استفاده کنید.'},
-            'university_name': { regex: /^[\u0600-\u06FF\s]+$/, message: 'لطفاً فقط از حروف فارسی استفاده کنید.'},
+            'mobile_phone': /^09[0-9]{9}$/,
+            'national_code': /^[0-9]{10}$/,
+            'landline_phone': /^0[0-9]{10}$/,
+            'postal_code': /^[0-9]{10}$/,
         };
 
         function validateStep(stepNumber) {
             let isValid = true; const scope = $('#hs-step-' + stepNumber);
             scope.find('.hs-field-error').text(''); scope.find('.has-error').removeClass('has-error');
-            scope.find('input, select, textarea').each(function() {
+            scope.find('input, select, textarea').not(':disabled').each(function() {
                 const field = $(this);
                 if (!field.is(':visible') || !field.prop('required')) return;
                 
                 let hasError = false;
                 let value = field.val();
+                let errorMessage = hs_ajax_data.messages.field_required;
 
                 if (field.is(':radio')) { if (!$('input[name="' + field.attr('name') + '"]:checked').length) hasError = true;
                 } else if (field.is(':file')) { if (field[0].files.length === 0 && !field.data('existing-file')) hasError = true;
                 } else if (!value) { hasError = true; }
                 
-                if (hasError) {
-                    field.closest('.hs-form-group').find('.hs-field-error').text(hs_ajax_data.messages.field_required);
-                    isValid = false;
-                } else {
-                    const fieldId = field.attr('id');
-                    if (validationPatterns[fieldId] && value) {
-                        if (!validationPatterns[fieldId].regex.test(value)) {
-                            field.closest('.hs-form-group').find('.hs-field-error').text(validationPatterns[fieldId].message);
-                            hasError = true; isValid = false;
-                        }
+                if (!hasError && value) {
+                    const pattern = field.attr('pattern');
+                    if(pattern && !new RegExp(pattern).test(value)) {
+                        hasError = true;
+                        errorMessage = field.data('validation-message') || 'ورودی معتبر نیست.';
                     }
                 }
-                if (hasError) field.addClass('has-error');
+
+                if (hasError) {
+                    field.closest('.hs-form-group').find('.hs-field-error').text(errorMessage);
+                    field.addClass('has-error');
+                    isValid = false;
+                }
             });
             return isValid;
         }
@@ -261,9 +266,13 @@
         }
         
         refreshUserStatus();
+        initProvinceCity();
         checkConditions();
         form.on('change', 'select, input[type=radio], input[type=checkbox]', checkConditions);
         showStep(currentStep);
+    } else {
+        // Run this for other pages like user-listing
+        initProvinceCity();
     }
     
     // --- Matchmaking System Logic ---
@@ -305,10 +314,22 @@
         const requestId = button.data('request-id');
         const isMale = button.data('is-male');
         const warningHtml = isMale ? '<p class="hs-message warning"><b>هشدار:</b> پس از لغو، حساب شما به مدت ۲۴ ساعت قفل خواهد شد.</p>' : '';
-        const content = `<div class="hs-modal-content"><span class="hs-close-button">&times;</span><h3>لغو درخواست</h3><p>لطفاً دلیل لغو درخواست خود را وارد کنید.</p>${warningHtml}<textarea id="hs-cancellation-reason" rows="5" placeholder="دلیل لغو..."></textarea><button id="hs-confirm-cancel-btn" class="hs-button danger" data-request-id="${requestId}">تایید و لغو</button></div>`;
+        const content = `<div class="hs-modal-content"><span class="hs-close-button">&times;</span><h3>لغو درخواست</h3><p>لطفاً دلیل لغو درخواست خود را وارد کنید.</p>${warningHtml}<textarea id="hs-cancellation-reason" rows="5" placeholder="دلیل لغو..." required></textarea><button id="hs-confirm-cancel-btn" class="hs-button danger" data-request-id="${requestId}">تایید و لغو</button></div>`;
         const modal = $(`<div id="hs-cancellation-modal" class="hs-modal-overlay">${content}</div>`).appendTo('body');
         setTimeout(() => modal.addClass('active'), 10);
     });
+    
+    // Close modal by clicking overlay or close button
+    $(document).on('click', '.hs-modal-overlay', function(e) {
+        if (e.target === this || $(e.target).hasClass('hs-close-button')) {
+            $(this).removeClass('active').fadeOut(200, function() { $(this).remove(); });
+        }
+    });
+    // Prevent modal from closing when clicking inside content
+    $(document).on('click', '.hs-modal-content', function(e) {
+        e.stopPropagation();
+    });
+
 
     $(document).on('click', '#hs-confirm-cancel-btn', function(e) {
         e.preventDefault();
@@ -321,7 +342,7 @@
             if (res.success) {
                 $('.hs-modal-overlay').remove();
                 showNotification(res.data.message, 'success');
-                setTimeout(() => window.location.reload(), 2000);
+                setTimeout(() => window.location.reload(), 3000);
             } else { showNotification('خطا: ' + (res.data.message || 'ناشناخته'), 'error'); button.prop('disabled', false).text('تایید و لغو'); }
         }).fail(() => { showNotification('خطای سرور.', 'error'); button.prop('disabled', false).text('تایید و لغو'); });
     });
