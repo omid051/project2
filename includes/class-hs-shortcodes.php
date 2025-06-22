@@ -58,7 +58,7 @@ class HS_Shortcodes {
             $compare_op = $attrs['condition']['compare'] ?? '==';
             $condition_value_str = is_array($attrs['condition']['value']) ? implode(',', $attrs['condition']['value']) : $attrs['condition']['value'];
             $wrapper_attrs = sprintf(
-                'data-condition-field="%s" data-condition-value="%s" data-condition-compare="%s" style="display:none;"', // **FIXED**: Hide conditional fields by default
+                'data-condition-field="%s" data-condition-value="%s" data-condition-compare="%s" style="display:none;"',
                 esc_attr($attrs['condition']['field']),
                 esc_attr($condition_value_str),
                 esc_attr($compare_op)
@@ -105,7 +105,7 @@ class HS_Shortcodes {
                 echo '</div><span class="hs-field-error"></span>';
                 break;
             case 'file':
-                echo '<input type="file" id="' . esc_attr($key) . '" name="' . esc_attr($key) . '" accept="image/jpeg,image/png" ' . $required_attr . ' data-existing-file="' . esc_attr($meta_value) . '">';
+                echo '<input type="file" id="' . esc_attr($key) . '" name="' . esc_attr($key) . '" accept="image/jpeg,image/png,application/pdf" ' . $required_attr . ' data-existing-file="' . esc_attr($meta_value) . '">';
                 if (!empty($meta_value)) { echo '<span class="hs-file-upload-info">فایل قبلاً آپلود شده است. برای جایگزینی، فایل جدید را انتخاب کنید.</span>'; }
                 echo '<span class="hs-field-error"></span>';
                 break;
@@ -128,54 +128,20 @@ class HS_Shortcodes {
         $args = [
             'role' => 'hs_approved',
             'exclude' => [$current_user_id],
-            'meta_query' => [
-                'relation' => 'AND',
-                ['key' => 'hs_gender', 'value' => $target_gender]
-            ]
+            'meta_query' => [ 'relation' => 'AND', ['key' => 'hs_gender', 'value' => $target_gender] ]
         ];
         
         if (!empty($_GET['hs_search'])) {
             $meta_query = $args['meta_query'];
-            
-            // Province & City
-            if (!empty($_GET['residence_province'])) {
-                $meta_query[] = ['key' => 'hs_residence_province', 'value' => sanitize_text_field($_GET['residence_province'])];
-            }
-            if (!empty($_GET['residence_city'])) {
-                $meta_query[] = ['key' => 'hs_residence_city', 'value' => sanitize_text_field($_GET['residence_city'])];
-            }
-            
-            // Age
-            if (!empty($_GET['min_age']) && is_numeric($_GET['min_age'])) {
-                $max_birth_year = (int)$this->helpers->get_current_jalali_year() - (int)$_GET['min_age'];
-                $meta_query[] = ['key' => 'hs_birth_date', 'value' => $max_birth_year . '/12/31', 'compare' => '<=', 'type' => 'CHAR'];
-            }
-            if (!empty($_GET['max_age']) && is_numeric($_GET['max_age'])) {
-                $min_birth_year = (int)$this->helpers->get_current_jalali_year() - (int)$_GET['max_age'];
-                $meta_query[] = ['key' => 'hs_birth_date', 'value' => $min_birth_year . '/01/01', 'compare' => '>=', 'type' => 'CHAR'];
-            }
-            
-            // Height
-            if (!empty($_GET['min_height']) && is_numeric($_GET['min_height'])) {
-                $meta_query[] = ['key' => 'hs_height', 'value' => (int)$_GET['min_height'], 'compare' => '>=', 'type' => 'NUMERIC'];
-            }
-            if (!empty($_GET['max_height']) && is_numeric($_GET['max_height'])) {
-                $meta_query[] = ['key' => 'hs_height', 'value' => (int)$_GET['max_height'], 'compare' => '<=', 'type' => 'NUMERIC'];
-            }
-            
-            // Weight
-            if (!empty($_GET['min_weight']) && is_numeric($_GET['min_weight'])) {
-                $meta_query[] = ['key' => 'hs_weight', 'value' => (int)$_GET['min_weight'], 'compare' => '>=', 'type' => 'NUMERIC'];
-            }
-            if (!empty($_GET['max_weight']) && is_numeric($_GET['max_weight'])) {
-                $meta_query[] = ['key' => 'hs_weight', 'value' => (int)$_GET['max_weight'], 'compare' => '<=', 'type' => 'NUMERIC'];
-            }
-            
-            // Marital Status
-            if (!empty($_GET['marital_status'])) {
-                $meta_query[] = ['key' => 'hs_marital_status', 'value' => sanitize_text_field($_GET['marital_status'])];
-            }
-            
+            if (!empty($_GET['residence_province'])) { $meta_query[] = ['key' => 'hs_residence_province', 'value' => sanitize_text_field($_GET['residence_province'])]; }
+            if (!empty($_GET['residence_city'])) { $meta_query[] = ['key' => 'hs_residence_city', 'value' => sanitize_text_field($_GET['residence_city'])]; }
+            if (!empty($_GET['min_age']) && is_numeric($_GET['min_age'])) { $max_birth_year = (int)$this->helpers->get_current_jalali_year() - (int)$_GET['min_age']; $meta_query[] = ['key' => 'hs_birth_date', 'value' => $max_birth_year . '/12/31', 'compare' => '<=', 'type' => 'CHAR']; }
+            if (!empty($_GET['max_age']) && is_numeric($_GET['max_age'])) { $min_birth_year = (int)$this->helpers->get_current_jalali_year() - (int)$_GET['max_age']; $meta_query[] = ['key' => 'hs_birth_date', 'value' => $min_birth_year . '/01/01', 'compare' => '>=', 'type' => 'CHAR']; }
+            if (!empty($_GET['min_height']) && is_numeric($_GET['min_height'])) { $meta_query[] = ['key' => 'hs_height', 'value' => (int)$_GET['min_height'], 'compare' => '>=', 'type' => 'NUMERIC']; }
+            if (!empty($_GET['max_height']) && is_numeric($_GET['max_height'])) { $meta_query[] = ['key' => 'hs_height', 'value' => (int)$_GET['max_height'], 'compare' => '<=', 'type' => 'NUMERIC']; }
+            if (!empty($_GET['min_weight']) && is_numeric($_GET['min_weight'])) { $meta_query[] = ['key' => 'hs_weight', 'value' => (int)$_GET['min_weight'], 'compare' => '>=', 'type' => 'NUMERIC']; }
+            if (!empty($_GET['max_weight']) && is_numeric($_GET['max_weight'])) { $meta_query[] = ['key' => 'hs_weight', 'value' => (int)$_GET['max_weight'], 'compare' => '<=', 'type' => 'NUMERIC']; }
+            if (!empty($_GET['marital_status'])) { $meta_query[] = ['key' => 'hs_marital_status', 'value' => sanitize_text_field($_GET['marital_status'])]; }
             $args['meta_query'] = $meta_query;
         }
         
@@ -197,89 +163,136 @@ class HS_Shortcodes {
     private function render_advanced_search_form() {
         $fields_data = $this->fields->get_fields();
         $marital_status_options = $fields_data['additional']['fields']['marital_status']['options'] ?? [];
-        $height_range = $fields_data['appearance']['fields']['height']['range'] ?? range(120, 250);
-        $weight_range = $fields_data['appearance']['fields']['weight']['range'] ?? range(30, 200);
         ?>
         <div class="hs-advanced-search">
             <button id="hs-toggle-search" class="hs-button">جستجوی پیشرفته</button>
             <form id="hs-search-form" method="get" action="" style="display:none;">
                 <input type="hidden" name="hs_search" value="1">
-                
                 <div class="hs-form-row">
-                    <div class="hs-form-group">
-                        <label for="search_residence_province">استان محل زندگی:</label>
-                        <select id="search_residence_province" name="residence_province" class="hs-province-select" data-city-target="search_residence_city" data-saved-value="<?php echo isset($_GET['residence_province']) ? esc_attr($_GET['residence_province']) : ''; ?>">
-                           <option value="">همه استان‌ها</option>
-                        </select>
-                    </div>
-                    <div class="hs-form-group">
-                        <label for="search_residence_city">شهر محل زندگی:</label>
-                        <select id="search_residence_city" name="residence_city" class="hs-city-select" data-saved-value="<?php echo isset($_GET['residence_city']) ? esc_attr($_GET['residence_city']) : ''; ?>">
-                           <option value="">همه شهرها</option>
-                        </select>
-                    </div>
+                    <div class="hs-form-group"><label for="search_residence_province">استان محل زندگی:</label><select id="search_residence_province" name="residence_province" class="hs-province-select" data-city-target="search_residence_city" data-saved-value="<?php echo isset($_GET['residence_province']) ? esc_attr($_GET['residence_province']) : ''; ?>"><option value="">همه استان‌ها</option></select></div>
+                    <div class="hs-form-group"><label for="search_residence_city">شهر محل زندگی:</label><select id="search_residence_city" name="residence_city" class="hs-city-select" data-saved-value="<?php echo isset($_GET['residence_city']) ? esc_attr($_GET['residence_city']) : ''; ?>"><option value="">همه شهرها</option></select></div>
                 </div>
-    
                 <div class="hs-form-row">
-                    <div class="hs-form-group">
-                        <label for="min_age">حداقل سن:</label>
-                        <input type="number" name="min_age" value="<?php echo isset($_GET['min_age']) ? esc_attr($_GET['min_age']) : ''; ?>" placeholder="مثلاً: 25">
-                    </div>
-                    <div class="hs-form-group">
-                        <label for="max_age">حداکثر سن:</label>
-                        <input type="number" name="max_age" value="<?php echo isset($_GET['max_age']) ? esc_attr($_GET['max_age']) : ''; ?>" placeholder="مثلاً: 35">
-                    </div>
+                    <div class="hs-form-group"><label for="min_age">حداقل سن:</label><input type="number" name="min_age" value="<?php echo isset($_GET['min_age']) ? esc_attr($_GET['min_age']) : ''; ?>" placeholder="مثلاً: 25"></div>
+                    <div class="hs-form-group"><label for="max_age">حداکثر سن:</label><input type="number" name="max_age" value="<?php echo isset($_GET['max_age']) ? esc_attr($_GET['max_age']) : ''; ?>" placeholder="مثلاً: 35"></div>
                 </div>
-
                 <div class="hs-form-row">
-                     <div class="hs-form-group">
-                        <label for="min_height">حداقل قد (سانتی‌متر):</label>
-                        <input type="number" name="min_height" value="<?php echo isset($_GET['min_height']) ? esc_attr($_GET['min_height']) : ''; ?>" placeholder="مثلاً: 160">
-                    </div>
-                     <div class="hs-form-group">
-                        <label for="max_height">حداکثر قد (سانتی‌متر):</label>
-                        <input type="number" name="max_height" value="<?php echo isset($_GET['max_height']) ? esc_attr($_GET['max_height']) : ''; ?>" placeholder="مثلاً: 180">
-                    </div>
+                     <div class="hs-form-group"><label for="min_height">حداقل قد (سانتی‌متر):</label><input type="number" name="min_height" value="<?php echo isset($_GET['min_height']) ? esc_attr($_GET['min_height']) : ''; ?>" placeholder="مثلاً: 160"></div>
+                     <div class="hs-form-group"><label for="max_height">حداکثر قد (سانتی‌متر):</label><input type="number" name="max_height" value="<?php echo isset($_GET['max_height']) ? esc_attr($_GET['max_height']) : ''; ?>" placeholder="مثلاً: 180"></div>
                 </div>
-
                 <div class="hs-form-row">
-                    <div class="hs-form-group">
-                        <label for="min_weight">حداقل وزن (کیلوگرم):</label>
-                        <input type="number" name="min_weight" value="<?php echo isset($_GET['min_weight']) ? esc_attr($_GET['min_weight']) : ''; ?>" placeholder="مثلاً: 50">
-                    </div>
-                    <div class="hs-form-group">
-                        <label for="max_weight">حداکثر وزن (کیلوگرم):</label>
-                        <input type="number" name="max_weight" value="<?php echo isset($_GET['max_weight']) ? esc_attr($_GET['max_weight']) : ''; ?>" placeholder="مثلاً: 75">
-                    </div>
+                    <div class="hs-form-group"><label for="min_weight">حداقل وزن (کیلوگرم):</label><input type="number" name="min_weight" value="<?php echo isset($_GET['min_weight']) ? esc_attr($_GET['min_weight']) : ''; ?>" placeholder="مثلاً: 50"></div>
+                    <div class="hs-form-group"><label for="max_weight">حداکثر وزن (کیلوگرم):</label><input type="number" name="max_weight" value="<?php echo isset($_GET['max_weight']) ? esc_attr($_GET['max_weight']) : ''; ?>" placeholder="مثلاً: 75"></div>
                 </div>
-
                 <div class="hs-form-row">
-                    <div class="hs-form-group">
-                        <label for="marital_status">وضعیت سابقه ازدواج:</label>
-                        <select name="marital_status">
-                            <option value="">فرقی نمی‌کند</option>
-                            <?php
-                            $selected_marital = $_GET['marital_status'] ?? '';
-                            foreach ($marital_status_options as $key => $label) {
-                                echo '<option value="' . esc_attr($key) . '" ' . selected($selected_marital, $key, false) . '>' . esc_html($label) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
+                    <div class="hs-form-group"><label for="marital_status">وضعیت سابقه ازدواج:</label><select name="marital_status"><option value="">فرقی نمی‌کند</option><?php $selected_marital = $_GET['marital_status'] ?? ''; foreach ($marital_status_options as $key => $label) { echo '<option value="' . esc_attr($key) . '" ' . selected($selected_marital, $key, false) . '>' . esc_html($label) . '</option>'; } ?></select></div>
                 </div>
-                
                 <button type="submit" class="hs-button">جستجو</button>
-                <a href="<?php echo esc_url(remove_query_arg('hs_search')); ?>" class="hs-button secondary">حذف فیلترها</a>
+                <a href="<?php echo esc_url(strtok($_SERVER["REQUEST_URI"],'?')); ?>" class="hs-button secondary">حذف فیلترها</a>
             </form>
         </div>
         <?php
     }
     
-    public function render_user_card($user) { $user_id = $user->ID; $first_name = get_user_meta($user_id, 'hs_first_name', true) ?: $user->first_name; $city = get_user_meta($user_id, 'hs_residence_city', true); $age = $this->helpers->calculate_age(get_user_meta($user_id, 'hs_birth_date', true)); $profile_uuid = get_user_meta($user_id, 'hs_profile_uuid', true) ?: $this->helpers->generate_profile_uuid_on_register($user_id); $profile_url = $this->helpers->get_profile_page_url($profile_uuid); echo '<div class="hs-user-card">'; echo '<h3>' . esc_html($first_name) . '</h3>'; echo '<p>سن: ' . esc_html($age) . ' سال</p>'; echo '<p>شهر: ' . esc_html($city) . '</p>'; echo '<a href="' . esc_url($profile_url) . '" class="hs-button">مشاهده پروفایل</a>'; echo '</div>'; }
+    public function render_user_card($user, $extra_class = '') { $user_id = $user->ID; $first_name = get_user_meta($user_id, 'hs_first_name', true) ?: $user->first_name; $city = get_user_meta($user_id, 'hs_residence_city', true); $age = $this->helpers->calculate_age(get_user_meta($user_id, 'hs_birth_date', true)); $profile_uuid = get_user_meta($user_id, 'hs_profile_uuid', true) ?: $this->helpers->generate_profile_uuid_on_register($user_id); $profile_url = $this->helpers->get_profile_page_url($profile_uuid); echo '<div class="hs-user-card ' . esc_attr($extra_class) . '">'; echo '<h3>' . esc_html($first_name) . '</h3>'; echo '<p>سن: ' . esc_html($age) . ' سال</p>'; echo '<p>شهر: ' . esc_html($city) . '</p>'; echo '<a href="' . esc_url($profile_url) . '" class="hs-button">مشاهده پروفایل</a>'; echo '</div>'; }
 
     public function render_user_profile_page() { ob_start(); if (!is_user_logged_in()) { echo '<p class="hs-message error">برای مشاهده این صفحه، ابتدا وارد شوید.</p>'; return ob_get_clean(); } if (!isset($_GET['uuid'])) { echo '<p class="hs-message error">شناسه کاربر نامعتبر است.</p>'; return ob_get_clean(); } $uuid = sanitize_text_field($_GET['uuid']); $users = get_users(['meta_key' => 'hs_profile_uuid', 'meta_value' => $uuid, 'number' => 1, 'fields' => 'all']); if (empty($users)) { echo '<p class="hs-message error">کاربر مورد نظر یافت نشد.</p>'; return ob_get_clean(); } $user = $users[0]; $target_user_id = $user->ID; $current_user_id = get_current_user_id(); $active_request = $this->helpers->get_user_active_sent_request($current_user_id); if ($active_request && $active_request->receiver_id != $target_user_id) { echo '<p class="hs-message error">شما یک درخواست فعال با کاربر دیگری دارید و نمی‌توانید این پروفایل را مشاهده کنید.</p>'; return ob_get_clean(); } echo '<div class="hs-profile-container">'; $last_seen = get_user_meta($target_user_id, 'hs_last_seen', true); if ($last_seen) echo '<p class="hs-last-seen">آخرین بازدید: ' . esc_html($this->helpers->format_last_seen($last_seen)) . '</p>'; $first_name = get_user_meta($target_user_id, 'hs_first_name', true); $last_name = get_user_meta($target_user_id, 'hs_last_name', true); echo '<h1>پروفایل ' . esc_html($first_name . ' ' . $last_name) . '</h1>'; $this->render_profile_action_buttons($current_user_id, $target_user_id); echo '<div class="hs-profile-details">'; $all_field_groups = $this->fields->get_fields(); foreach ($all_field_groups as $group) { foreach ($group['fields'] as $key => $attrs) { if (empty($attrs['public'])) continue; $meta_value = get_user_meta($target_user_id, 'hs_' . $key, true); if (empty($meta_value) && $meta_value !== '0') continue; echo '<div class="hs-profile-field"><strong>' . esc_html($attrs['label']) . ':</strong> <span>'; if(isset($attrs['is_age'])) { echo esc_html($this->helpers->calculate_age($meta_value)) . ' سال'; } elseif (isset($attrs['options'])) { echo esc_html($attrs['options'][$meta_value] ?? $meta_value); } elseif (is_array($meta_value)) { echo esc_html(implode(', ', $meta_value)); } else { echo nl2br(esc_html($meta_value)); } echo '</span></div>'; } } echo '</div></div>'; return ob_get_clean(); }
     
-    private function render_profile_action_buttons($current_user_id, $target_user_id) { $interaction = $this->helpers->get_interaction_between_users($current_user_id, $target_user_id); echo '<div class="hs-profile-actions">'; if ($interaction) { if ($interaction->status === 'pending' && $interaction->receiver_id == $current_user_id) { echo '<button class="hs-button" data-action="accept" data-request-id="' . $interaction->id . '">تایید درخواست</button>'; echo '<button class="hs-button danger" data-action="reject" data-request-id="' . $interaction->id . '">رد درخواست</button>'; } elseif ($interaction->status === 'pending' && $interaction->sender_id == $current_user_id) { echo '<p class="hs-message notice">شما برای این کاربر درخواست ارسال کرده‌اید و منتظر پاسخ هستید.</p>'; echo '<button class="hs-button warning" id="hs-cancel-request-btn" data-request-id="' . $interaction->id . '" data-is-male="' . (get_user_meta($current_user_id, 'hs_gender', true) === 'male' ? 'true' : 'false') . '">لغو درخواست</button>'; } elseif ($interaction->status === 'accepted') { echo '<p class="hs-message notice">درخواست شما تایید شده و منتظر بررسی نهایی توسط مدیر است.</p>'; echo '<button class="hs-button warning" id="hs-cancel-request-btn" data-request-id="' . $interaction->id . '" data-is-male="' . (get_user_meta($current_user_id, 'hs_gender', true) === 'male' ? 'true' : 'false') . '">لغو آشنایی</button>'; } else { echo '<p class="hs-message notice">وضعیت فعلی شما با این کاربر: ' . esc_html($this->helpers->get_status_label($interaction->status)) . '</p>'; } } elseif (!$this->helpers->get_user_active_sent_request($current_user_id)) { echo '<button id="hs-send-request-btn" class="hs-button" data-receiver-id="' . $target_user_id . '">درخواست آشنایی</button>'; } else { echo '<p class="hs-message notice">شما یک درخواست فعال با کاربر دیگری دارید و نمی‌توانید درخواست جدیدی ارسال کنید.</p>'; } echo '</div>'; }
+    private function render_profile_action_buttons($current_user_id, $target_user_id) {
+        $interaction = $this->helpers->get_interaction_between_users($current_user_id, $target_user_id);
+        $bookmarks = get_user_meta($current_user_id, 'hs_bookmarked_users', true) ?: [];
+        $is_bookmarked = in_array($target_user_id, $bookmarks);
+        
+        echo '<div class="hs-profile-actions">';
+        if ($interaction) {
+            if ($interaction->status === 'pending' && $interaction->receiver_id == $current_user_id) {
+                echo '<button class="hs-button" data-action="accept" data-request-id="' . $interaction->id . '">تایید درخواست</button>';
+                echo '<button class="hs-button danger" data-action="reject" data-request-id="' . $interaction->id . '">رد درخواست</button>';
+            } elseif ($interaction->status === 'pending' && $interaction->sender_id == $current_user_id) {
+                echo '<p class="hs-message notice">شما برای این کاربر درخواست ارسال کرده‌اید و منتظر پاسخ هستید.</p>';
+                echo '<button class="hs-button warning" id="hs-cancel-request-btn" data-request-id="' . $interaction->id . '" data-is-male="' . (get_user_meta($current_user_id, 'hs_gender', true) === 'male' ? 'true' : 'false') . '">لغو درخواست</button>';
+            } elseif ($interaction->status === 'accepted') {
+                echo '<p class="hs-message notice">درخواست شما تایید شده و منتظر بررسی نهایی توسط مدیر است.</p>';
+                echo '<button class="hs-button warning" id="hs-cancel-request-btn" data-request-id="' . $interaction->id . '" data-is-male="' . (get_user_meta($current_user_id, 'hs_gender', true) === 'male' ? 'true' : 'false') . '">لغو آشنایی</button>';
+            } else {
+                echo '<p class="hs-message notice">وضعیت فعلی شما با این کاربر: ' . esc_html($this->helpers->get_status_label($interaction->status)) . '</p>';
+            }
+        } elseif (!$this->helpers->get_user_active_sent_request($current_user_id)) {
+            echo '<button id="hs-send-request-btn" class="hs-button" data-receiver-id="' . $target_user_id . '">درخواست آشنایی</button>';
+        } else {
+            echo '<p class="hs-message notice">شما یک درخواست فعال با کاربر دیگری دارید و نمی‌توانید درخواست جدیدی ارسال کنید.</p>';
+        }
+
+        // Bookmark button
+        $bookmark_text = $is_bookmarked ? 'حذف از نشان شده‌ها' : 'نشان کردن پروفایل';
+        $bookmark_class = $is_bookmarked ? 'secondary' : 'primary';
+        echo '<button id="hs-bookmark-btn" class="hs-button ' . $bookmark_class . '" data-target-user-id="' . $target_user_id . '">' . $bookmark_text . '</button>';
+        
+        echo '</div>';
+    }
     
-    public function render_requests_dashboard() { ob_start(); if (!$this->helpers->check_user_access_permission(false)) { return ob_get_clean(); } $user_id = get_current_user_id(); $active_request = $this->helpers->get_user_active_sent_request($user_id); if ($active_request) { echo '<div class="hs-message notice hs-active-request-box">'; echo '<h4>شما یک درخواست آشنایی فعال دارید</h4>'; echo '<p>تا زمان مشخص شدن وضعیت این درخواست، امکان مشاهده سایر کاربران را ندارید.</p>'; $receiver = get_userdata($active_request->receiver_id); if ($receiver) { $this->render_user_card($receiver); } echo '</div>'; } global $wpdb; $table_name = $wpdb->prefix . 'hs_requests'; echo '<h2>درخواست‌های من</h2>'; $incoming_requests = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE receiver_id = %d AND status = 'pending' ORDER BY request_date DESC", $user_id)); echo '<h3>درخواست‌های دریافتی</h3>'; if ($incoming_requests) { echo '<ul class="hs-requests-list">'; foreach ($incoming_requests as $request) { $sender = get_userdata($request->sender_id); if (!$sender) continue; $profile_uuid = get_user_meta($sender->ID, 'hs_profile_uuid', true); $profile_url = $this->helpers->get_profile_page_url($profile_uuid); echo '<li>درخواست از طرف <a href="'.esc_url($profile_url).'">'.esc_html($sender->display_name).'</a> <span class="hs-request-actions"><button class="hs-button" data-action="accept" data-request-id="'.$request->id.'">تایید</button> <button class="hs-button danger" data-action="reject" data-request-id="'.$request->id.'">رد</button></span></li>'; } echo '</ul>'; } else { echo '<p>شما درخواست دریافتی جدیدی ندارید.</p>'; } $outgoing_requests = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE sender_id = %d ORDER BY request_date DESC", $user_id)); echo '<h3>تاریخچه درخواست‌های ارسالی</h3>'; if ($outgoing_requests) { echo '<ul class="hs-requests-list">'; foreach ($outgoing_requests as $request) { $receiver = get_userdata($request->receiver_id); if (!$receiver) continue; $profile_uuid = get_user_meta($receiver->ID, 'hs_profile_uuid', true); $profile_url = $this->helpers->get_profile_page_url($profile_uuid); echo '<li>درخواست برای <a href="'.esc_url($profile_url).'">'.esc_html($receiver->display_name).'</a> - وضعیت: '.esc_html($this->helpers->get_status_label($request->status)).'</li>'; } echo '</ul>'; } else { echo '<p>شما تاکنون درخواستی ارسال نکرده‌اید.</p>'; } return ob_get_clean(); }
+    public function render_requests_dashboard() {
+        ob_start();
+        if (!$this->helpers->check_user_access_permission(false)) { return ob_get_clean(); }
+        $user_id = get_current_user_id();
+
+        // Active Request
+        $active_request = $this->helpers->get_user_active_sent_request($user_id);
+        if ($active_request) {
+            echo '<div class="hs-message notice hs-active-request-box">';
+            echo '<h4>شما یک درخواست آشنایی فعال دارید</h4>';
+            echo '<p>تا زمان مشخص شدن وضعیت این درخواست، امکان مشاهده سایر کاربران را ندارید.</p>';
+            $receiver = get_userdata($active_request->receiver_id);
+            if ($receiver) { $this->render_user_card($receiver); }
+            echo '</div>';
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'hs_requests';
+
+        // Incoming Requests
+        echo '<h2>درخواست‌های من</h2><h3>درخواست‌های دریافتی</h3>';
+        $incoming_requests = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE receiver_id = %d AND status = 'pending' ORDER BY request_date DESC", $user_id));
+        if ($incoming_requests) {
+            echo '<ul class="hs-requests-list">';
+            foreach ($incoming_requests as $request) {
+                $sender = get_userdata($request->sender_id); if (!$sender) continue;
+                $profile_uuid = get_user_meta($sender->ID, 'hs_profile_uuid', true);
+                $profile_url = $this->helpers->get_profile_page_url($profile_uuid);
+                echo '<li>درخواست از طرف <a href="'.esc_url($profile_url).'">'.esc_html($sender->display_name).'</a> <span class="hs-request-actions"><button class="hs-button" data-action="accept" data-request-id="'.$request->id.'">تایید</button> <button class="hs-button danger" data-action="reject" data-request-id="'.$request->id.'">رد</button></span></li>';
+            }
+            echo '</ul>';
+        } else { echo '<p>شما درخواست دریافتی جدیدی ندارید.</p>'; }
+
+        // Outgoing Requests History
+        echo '<h3>تاریخچه درخواست‌های ارسالی</h3>';
+        $outgoing_requests = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE sender_id = %d ORDER BY request_date DESC", $user_id));
+        if ($outgoing_requests) {
+            echo '<ul class="hs-requests-list">';
+            foreach ($outgoing_requests as $request) {
+                $receiver = get_userdata($request->receiver_id); if (!$receiver) continue;
+                $profile_uuid = get_user_meta($receiver->ID, 'hs_profile_uuid', true);
+                $profile_url = $this->helpers->get_profile_page_url($profile_uuid);
+                echo '<li>درخواست برای <a href="'.esc_url($profile_url).'">'.esc_html($receiver->display_name).'</a> - وضعیت: '.esc_html($this->helpers->get_status_label($request->status)).'</li>';
+            }
+            echo '</ul>';
+        } else { echo '<p>شما تاکنون درخواستی ارسال نکرده‌اید.</p>'; }
+        
+        // Bookmarked Users
+        echo '<hr><h2>پروفایل‌های نشان شده</h2>';
+        $bookmarked_ids = get_user_meta($user_id, 'hs_bookmarked_users', true);
+        if (!empty($bookmarked_ids) && is_array($bookmarked_ids)) {
+            $bookmarked_users_query = new WP_User_Query(['include' => $bookmarked_ids]);
+            $bookmarked_users = $bookmarked_users_query->get_results();
+            if(!empty($bookmarked_users)) {
+                echo '<div class="hs-user-grid">';
+                foreach ($bookmarked_users as $user) {
+                    $this->render_user_card($user, 'bookmarked-card');
+                }
+                echo '</div>';
+            } else { echo '<p>پروفایل‌های نشان شده یافت نشدند (ممکن است حذف شده باشند).</p>'; }
+        } else { echo '<p>شما هنوز هیچ پروفایلی را نشان نکرده‌اید.</p>'; }
+
+        return ob_get_clean();
+    }
 }
