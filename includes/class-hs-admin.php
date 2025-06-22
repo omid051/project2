@@ -37,56 +37,11 @@ class HS_Admin {
 
     public function render_login_history_page() {
         global $wpdb;
-        $logs_table = $wpdb->prefix . 'hs_login_logs';
-        $users_table = $wpdb->users;
-        
-        $search_term = isset($_GET['s']) ? sanitize_text_field(trim($_GET['s'])) : '';
-        $where_clause = '';
-        $query_args = [];
+        $table_name = $wpdb->prefix . 'hs_login_logs';
+        $logs = $wpdb->get_results("SELECT l.*, u.user_login, u.display_name FROM {$table_name} l LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID ORDER BY l.login_timestamp DESC LIMIT 100");
         ?>
         <div class="wrap hs-admin-wrap">
-            <h1>سابقه ورود کاربران</h1>
-            <p>برای مشاهده سابقه ورود یک کاربر خاص، نام کاربری، نام نمایشی یا ایمیل او را جستجو کنید. در غیر این صورت، ۱۰۰ ورود اخیر نمایش داده می‌شود.</p>
-
-            <form method="get" style="margin-bottom: 20px;">
-                <input type="hidden" name="page" value="hamtam-login-history">
-                <label for="hs_user_search" class="screen-reader-text">جستجوی کاربر:</label>
-                <input type="search" id="hs_user_search" name="s" value="<?php echo esc_attr($search_term); ?>" placeholder="نام کاربری، ایمیل و...">
-                <input type="submit" class="button" value="جستجوی کاربر">
-                 <?php if ($search_term): ?>
-                    <a href="?page=hamtam-login-history" class="button button-secondary">نمایش همه</a>
-                <?php endif; ?>
-            </form>
-
-            <?php
-            if ($search_term) {
-                $user_query = new WP_User_Query([
-                    'search' => '*' . esc_attr($search_term) . '*',
-                    'search_columns' => ['user_login', 'user_email', 'display_name'],
-                    'fields' => 'ID',
-                ]);
-                $user_ids = $user_query->get_results();
-
-                if (!empty($user_ids)) {
-                    $ids_placeholder = implode(',', array_fill(0, count($user_ids), '%d'));
-                    $where_clause = $wpdb->prepare("WHERE l.user_id IN ($ids_placeholder)", $user_ids);
-                    if (count($user_ids) === 1) {
-                         $user_data = get_userdata($user_ids[0]);
-                         echo '<h2>سابقه ورود برای کاربر: ' . esc_html($user_data->display_name) . ' (' . esc_html($user_data->user_login) . ')</h2>';
-                    } else {
-                        echo '<h2>نتایج جستجو برای: "' . esc_html($search_term) . '"</h2>';
-                    }
-                } else {
-                    echo '<h2>کاربری برای عبارت "' . esc_html($search_term) . '" یافت نشد.</h2>';
-                    $where_clause = "WHERE 1=0"; // Force no results
-                }
-            }
-
-            $limit_clause = empty($search_term) ? 'LIMIT 100' : '';
-            $query = "SELECT l.*, u.user_login, u.display_name FROM {$logs_table} l LEFT JOIN {$users_table} u ON l.user_id = u.ID {$where_clause} ORDER BY l.login_timestamp DESC {$limit_clause}";
-            $logs = $wpdb->get_results($query);
-            ?>
-
+            <h1>سابقه ورود ۱۰۰ کاربر اخیر</h1>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
@@ -113,7 +68,7 @@ class HS_Admin {
                             <td style="direction: ltr; text-align: left; font-size: 11px;"><?php echo esc_html($log->user_agent); ?></td>
                         </tr>
                     <?php endforeach; else: ?>
-                        <tr><td colspan="4">هیچ سابقه ورودی برای این جستجو یافت نشد.</td></tr>
+                        <tr><td colspan="4">هیچ سابقه ورودی ثبت نشده است.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
