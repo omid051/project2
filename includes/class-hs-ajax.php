@@ -12,7 +12,7 @@ class HS_Ajax {
     }
 
     private function add_ajax_events() {
-        $actions = ['get_user_status', 'save_profile_form', 'approve_user', 'reject_user', 'send_request', 'handle_request_action', 'cancel_request'];
+        $actions = ['get_user_status', 'save_profile_form', 'approve_user', 'reject_user', 'send_request', 'handle_request_action', 'cancel_request', 'save_admin_note', 'ban_user', 'unban_user'];
         foreach ($actions as $action) {
             add_action('wp_ajax_hs_' . $action, [$this, $action]);
         }
@@ -160,4 +160,63 @@ class HS_Ajax {
     public function send_request() { check_ajax_referer('hs_ajax_nonce', 'nonce'); $sender_id = get_current_user_id(); $receiver_id = isset($_POST['receiver_id']) ? intval($_POST['receiver_id']) : 0; if (!$receiver_id || $sender_id == $receiver_id) { wp_send_json_error(['message' => 'اطلاعات نامعتبر است.']); } if (!$this->helpers->check_user_access_permission(true)) { wp_send_json_error(['message' => 'شما اجازه ارسال درخواست را ندارید.']); } if ($this->helpers->get_interaction_between_users($sender_id, $receiver_id)) { wp_send_json_error(['message' => 'شما قبلاً برای این کاربر درخواست ارسال کرده‌اید.']); } global $wpdb; $result = $wpdb->insert($wpdb->prefix . 'hs_requests', ['sender_id' => $sender_id, 'receiver_id' => $receiver_id, 'status' => 'pending', 'request_date' => current_time('mysql')], ['%d', '%d', '%s', '%s']); if ($result) { wp_send_json_success(['message' => 'درخواست شما با موفقیت ارسال شد.']); } else { wp_send_json_error(['message' => 'خطایی در ارسال درخواست رخ داد.']); } }
     public function handle_request_action() { check_ajax_referer('hs_ajax_nonce', 'nonce'); $user_id = get_current_user_id(); $request_id = isset($_POST['request_id']) ? intval($_POST['request_id']) : 0; $action = isset($_POST['request_action']) ? sanitize_text_field($_POST['request_action']) : ''; if (!$request_id || !in_array($action, ['accept', 'reject'])) { wp_send_json_error(['message' => 'اطلاعات نامعتبر است.']); } global $wpdb; $table_name = $wpdb->prefix . 'hs_requests'; $request = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $request_id)); if (!$request || $request->receiver_id != $user_id || $request->status !== 'pending') { wp_send_json_error(['message' => 'شما اجازه انجام این کار را ندارید.']); } $new_status = ($action === 'accept') ? 'accepted' : 'rejected'; $result = $wpdb->update($table_name, ['status' => $new_status, 'response_date' => current_time('mysql')], ['id' => $request_id]); if ($result) { wp_send_json_success(['message' => 'پاسخ شما با موفقیت ثبت شد.', 'action' => $action]); } else { wp_send_json_error(['message' => 'خطایی در ثبت پاسخ رخ داد.']); } }
     public function cancel_request() { check_ajax_referer('hs_ajax_nonce', 'nonce'); $user_id = get_current_user_id(); $request_id = isset($_POST['request_id']) ? intval($_POST['request_id']) : 0; $reason = isset($_POST['reason']) ? sanitize_textarea_field($_POST['reason']) : ''; if (!$request_id || empty($reason)) { wp_send_json_error(['message' => 'دلیل لغو اجباری است.']); } global $wpdb; $table_name = $wpdb->prefix . 'hs_requests'; $request = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $request_id)); if (!$request || ($request->sender_id != $user_id && $request->receiver_id != $user_id)) { wp_send_json_error(['message' => 'این درخواست متعلق به شما نیست.']); } $result = $wpdb->update($table_name, ['status' => 'cancelled', 'cancellation_reason' => $reason, 'cancelled_by' => $user_id, 'response_date' => current_time('mysql')], ['id' => $request_id]); if ($result) { if (get_user_meta($user_id, 'hs_gender', true) === 'male') { update_user_meta($user_id, '_hs_cancellation_lock_until', time() + DAY_IN_SECONDS); wp_send_json_success(['message' => 'درخواست شما لغو شد. حساب شما به مدت ۲۴ ساعت قفل خواهد بود.']); } else { wp_send_json_success(['message' => 'درخواست شما با موفقیت لغو شد.']); } } else { wp_send_json_error(['message' => 'خطایی در لغو درخواست رخ داد.']); } }
+    
+    public function save_admin_note() {
+        check_ajax_referer('hs_admin_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'شما دسترسی لازم را ندارید.']);
+        }
+        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        $note = isset($_POST['note']) ? sanitize_textarea_field($_POST['note']) : '';
+        if (!$user_id) {
+            wp_send_json_error(['message' => 'شناسه کاربر نامعتبر است.']);
+        }
+        update_user_meta($user_id, '_hs_admin_private_notes', $note);
+        wp_send_json_success(['message' => 'یادداشت با موفقیت ذخیره شد.']);
+    }
+
+    public function ban_user() {
+        check_ajax_referer('hs_admin_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'شما دسترسی لازم را ندارید.']);
+        }
+        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        $ban_until_date = isset($_POST['ban_until']) ? sanitize_text_field($_POST['ban_until']) : '';
+
+        if (!$user_id || empty($ban_until_date)) {
+            wp_send_json_error(['message' => 'اطلاعات نامعتبر است. لطفاً تاریخ را مشخص کنید.']);
+        }
+        
+        $ban_timestamp = strtotime($ban_until_date);
+
+        if ($ban_timestamp < time()) {
+             wp_send_json_error(['message' => 'تاریخ مسدودیت نمی‌تواند در گذشته باشد.']);
+        }
+
+        update_user_meta($user_id, '_hs_ban_until', $ban_timestamp);
+        $user = new WP_User($user_id);
+        $user->set_role('hs_banned');
+        clean_user_cache($user_id);
+        
+        wp_send_json_success(['message' => 'کاربر با موفقیت مسدود شد.']);
+    }
+
+    public function unban_user() {
+        check_ajax_referer('hs_admin_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'شما دسترسی لازم را ندارید.']);
+        }
+        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        if (!$user_id) {
+            wp_send_json_error(['message' => 'شناسه کاربر نامعتبر است.']);
+        }
+        
+        delete_user_meta($user_id, '_hs_ban_until');
+        $user = new WP_User($user_id);
+        // Return user to approved status, assuming this is the most common state.
+        $user->set_role('hs_approved'); 
+        clean_user_cache($user_id);
+        
+        wp_send_json_success(['message' => 'مسدودیت کاربر با موفقیت رفع شد.']);
+    }
 }
