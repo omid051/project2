@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) { exit; }
 
 final class HS_Main {
     private static $instance = null;
-    public $setup, $ajax, $shortcodes, $admin, $helpers, $fields;
+    public $setup, $ajax, $shortcodes, $admin, $helpers, $fields, $tickets;
 
     public static function get_instance() {
         if (null === self::$instance) { self::$instance = new self(); }
@@ -18,16 +18,22 @@ final class HS_Main {
         $this->ajax = new HS_Ajax($this->helpers, $this->fields);
         $this->shortcodes = new HS_Shortcodes($this->helpers, $this->fields);
         $this->admin = new HS_Admin($this->helpers, $this->fields);
+        $this->tickets = new HS_Tickets($this->helpers);
         $this->add_actions_and_filters();
     }
 
     private function load_dependencies() {
-        $files = ['data/iran-cities.php', 'class-hs-setup.php', 'class-hs-fields.php', 'class-hs-helpers.php', 'class-hs-shortcodes.php', 'class-hs-ajax.php', 'class-hs-admin.php'];
+        $files = [
+            'data/iran-cities.php', 'class-hs-setup.php', 'class-hs-fields.php', 
+            'class-hs-helpers.php', 'class-hs-shortcodes.php', 'class-hs-ajax.php', 
+            'class-hs-admin.php', 'class-hs-tickets.php'
+        ];
         foreach ($files as $file) { require_once HS_PLUGIN_PATH . 'includes/' . $file; }
     }
 
     private function add_actions_and_filters() {
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+        add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_scripts']);
         add_action('init', [$this->helpers, 'update_last_seen']);
         add_action('user_register', [$this->helpers, 'generate_profile_uuid_on_register']);
         add_action('template_redirect', [$this, 'handle_redirects']);
@@ -36,10 +42,9 @@ final class HS_Main {
     }
 
     public function enqueue_scripts() {
-        wp_enqueue_style('hs-styles', HS_PLUGIN_URL . 'assets/css/main.css', [], '5.1.0');
-        wp_enqueue_script('hs-scripts', HS_PLUGIN_URL . 'assets/js/main.js', ['jquery'], '5.1.0', true);
+        wp_enqueue_style('hs-styles', HS_PLUGIN_URL . 'assets/css/main.css', [], '5.2.0');
+        wp_enqueue_script('hs-scripts', HS_PLUGIN_URL . 'assets/js/main.js', ['jquery'], '5.2.0', true);
         
-        // Prepare province/city data for both profile form and search form
         $province_city_data = hs_get_iran_provinces_cities();
 
         wp_localize_script('hs-scripts', 'hs_ajax_data', [
@@ -55,12 +60,22 @@ final class HS_Main {
         ]);
     }
 
+    public function admin_enqueue_scripts($hook) {
+        // Enqueue Select2 for admin user search in tickets
+        if ('post.php' === $hook || 'post-new.php' === $hook) {
+            global $post_type;
+            if ('hs_ticket' === $post_type) {
+                wp_enqueue_style('select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', [], '4.1.0-rc.0');
+                wp_enqueue_script('select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', ['jquery'], '4.1.0-rc.0', true);
+            }
+        }
+    }
+
     public function handle_redirects() {
         if (is_admin() || !is_user_logged_in()) return;
         
         $user_id = get_current_user_id();
         
-        // --- Ban Check ---
         $ban_until = get_user_meta($user_id, '_hs_ban_until', true);
         if ($ban_until && time() < $ban_until) {
             $remaining_time = human_time_diff(time(), $ban_until);
@@ -70,7 +85,6 @@ final class HS_Main {
             $message_body .= '<p style="text-align:center;"><a href="' . wp_logout_url() . '">خروج از حساب</a></p>';
             wp_die($message_body, $message_title, ['response' => 403]);
         }
-        // --- End Ban Check ---
 
         global $post;
         if (!is_a($post, 'WP_Post')) return;
@@ -108,12 +122,7 @@ final class HS_Main {
                 'ip_address'      => $ip_address,
                 'user_agent'      => $user_agent,
             ],
-            [
-                '%d',
-                '%s',
-                '%s',
-                '%s'
-            ]
+            [ '%d', '%s', '%s', '%s' ]
         );
     }
 }
