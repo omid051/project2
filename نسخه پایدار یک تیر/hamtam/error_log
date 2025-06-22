@@ -1,0 +1,75 @@
+[17-Jun-2025 14:19:57 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function wp_verify_nonce() in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 16
+[17-Jun-2025 14:20:05 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function wp_verify_nonce() in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 16
+[17-Jun-2025 14:20:06 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function wp_verify_nonce() in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 16
+[17-Jun-2025 14:20:06 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function wp_verify_nonce() in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 16
+[17-Jun-2025 14:20:07 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function wp_verify_nonce() in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 16
+[17-Jun-2025 14:20:08 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function wp_verify_nonce() in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 16
+[17-Jun-2025 14:20:37 UTC] PHP Warning:  Use of undefined constant HS_SECURE_UPLOADS_DIR_NAME - assumed 'HS_SECURE_UPLOADS_DIR_NAME' (this will throw an Error in a future version of PHP) in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/includes/class-hs-setup.php on line 63
+[17-Jun-2025 14:20:37 UTC] PHP Warning:  readfile() has been disabled for security reasons in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 62
+[17-Jun-2025 14:20:44 UTC] PHP Warning:  Use of undefined constant HS_SECURE_UPLOADS_DIR_NAME - assumed 'HS_SECURE_UPLOADS_DIR_NAME' (this will throw an Error in a future version of PHP) in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/includes/class-hs-setup.php on line 63
+[17-Jun-2025 14:20:44 UTC] PHP Warning:  readfile() has been disabled for security reasons in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 62
+[17-Jun-2025 14:20:46 UTC] PHP Warning:  Use of undefined constant HS_SECURE_UPLOADS_DIR_NAME - assumed 'HS_SECURE_UPLOADS_DIR_NAME' (this will throw an Error in a future version of PHP) in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/includes/class-hs-setup.php on line 63
+[17-Jun-2025 14:20:46 UTC] PHP Warning:  readfile() has been disabled for security reasons in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 62
+[17-Jun-2025 14:20:48 UTC] PHP Warning:  Use of undefined constant HS_SECURE_UPLOADS_DIR_NAME - assumed 'HS_SECURE_UPLOADS_DIR_NAME' (this will throw an Error in a future version of PHP) in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/includes/class-hs-setup.php on line 63
+[17-Jun-2025 14:20:48 UTC] PHP Warning:  readfile() has been disabled for security reasons in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 62
+[17-Jun-2025 14:26:08 UTC] PHP Warning:  Use of undefined constant HS_SECURE_UPLOADS_DIR_NAME - assumed 'HS_SECURE_UPLOADS_DIR_NAME' (this will throw an Error in a future version of PHP) in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/includes/class-hs-setup.php on line 63
+[17-Jun-2025 14:26:08 UTC] PHP Warning:  readfile() has been disabled for security reasons in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 62
+[17-Jun-2025 14:26:11 UTC] PHP Warning:  Use of undefined constant HS_SECURE_UPLOADS_DIR_NAME - assumed 'HS_SECURE_UPLOADS_DIR_NAME' (this will throw an Error in a future version of PHP) in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/includes/class-hs-setup.php on line 63
+[17-Jun-2025 14:26:11 UTC] PHP Warning:  readfile() has been disabled for security reasons in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 62
+[22-Jun-2025 14:15:19 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:24 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:24 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:25 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:26 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:26 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:27 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:27 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:27 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:28 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:43 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:45 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:45 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:46 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:15:49 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:43 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:44 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:45 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:51 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:52 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:52 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:53 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:53 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:53 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:16:53 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 14:17:02 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:22 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:26 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:27 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:27 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:28 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:28 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:28 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:28 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:29 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:29 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:29 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:29 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
+[22-Jun-2025 18:12:30 Asia/Tehran] PHP Parse error:  syntax error, unexpected '!' in /home/madrese2/hamta.verify724.com/wp-content/plugins/hamtam/serve-document.php on line 28
